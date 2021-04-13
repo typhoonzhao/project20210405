@@ -1,0 +1,79 @@
+%莱斯信道+脉冲干扰（载波）
+
+clear all
+T=1;%符号周期
+nsamp=5000;%每个符号采样点数
+ts=1/nsamp;%采样时间间隔
+t=0:ts:T-ts;
+fc=1500;%载波频率
+c=sqrt(2/T)*exp(2*1j*pi*fc*t);%生成载波
+c1=sqrt(2/T)*cos(2*pi*fc*t);
+c2=-sqrt(2/T)*sin(2*pi*fc*t);
+
+symbolrate=10;%符号速率
+fs=symbolrate*nsamp;%取样频率
+fd=100;%最大多普勒频移
+k=10;%莱斯因子
+chan=ricianchan(1/fs,fd,k);%莱斯衰落信道
+
+M=4;
+nsymbol=10000;
+graycode=[0 1 3 2];
+msg=randsrc(1,nsymbol,[0:3]);
+msg1=graycode(msg+1);
+msgmod=pskmod(msg1,M).';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tx=real(msgmod*c);
+tx1=reshape(tx.',1,length(msgmod)*length(c));
+Px=norm(tx1).^2/nsymbol;
+CIR=linspace(0,20,10);
+cir=10.^(CIR/10);
+
+% t1=linspace(0,10,50000000);
+% x=square(2*pi*10*t1,50);%干扰生成
+% s11=ones(1,50000000);
+% indx=find(x==-1);
+% s11(indx)=0;
+s11(1:25) = linspace(0,100,25);
+s11(26:50) = linspace(100,0,25);
+for kk = 1:1:1000000-1
+    s11(kk*50+1:kk*50+50) = s11(1:50);
+end
+
+for indx=1:1
+    Pc=Px/cir(indx);
+    y=tx1+sqrt(Pc/nsamp)*s11;
+       figure(5);
+     xx = linspace(1,length(tx1),length(tx1));
+      plot(xx,tx1,'r',xx,tx1+sqrt(Pc/nsamp)*s11,'k');%红色：发送信号，黑色：发送信号+干扰信号
+      fadesig=filter(chan,y);
+      fadesig1=filter(chan,tx1);
+%       fadesig2=filter(chan,x);
+    figure(6);
+    plot(xx,fadesig1,'r',xx,fadesig,'k');%红色：发送信号通过莱斯信道，黑色：发送信号加干扰通过莱斯信道
+%     figure(7);
+%     plot(xx,fadesig2);
+    rx1=reshape(fadesig,length(c),length(msgmod));
+    rx_no = reshape(fadesig1,length(c),length(msgmod));
+    r1=(c1*rx1);
+    r1_no = (c1*rx_no);
+    figure(8);
+    xxx = linspace(1,length(r1),length(r1));
+    plot(xxx,r1_no,'r',xxx,r1,'k');
+%     figure(9);
+%     plot(xxx,rx1(1,:),'k',xxx,rx_no(1,:),'r',linspace(1,50,50),c1,'b');
+    r2=(c2*rx1);
+    r2_no = (c2*rx_no);
+%     figure(10);
+%     plot(xxx,r2_no,'r',xxx,r2,'k');
+    r=r1+1j*r2;
+    rx11=pskdemod(r,M);
+    decmsg=graycode(rx11+1);
+    [err1,ber(indx)]=biterr(msg,decmsg,log2(M));
+    [err2,ser(indx)]=symerr(msg,decmsg);
+end
+figure(1);
+semilogy(CIR,ber,'-ko',CIR,ser,'-k*');
+title('莱斯信道下QPSK受到脉冲干扰的误码率分析（载波）');
+xlabel('[C/I]');ylabel('误比特率和误符号率');
+legend('误比特率','误符号率');
