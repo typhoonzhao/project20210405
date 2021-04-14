@@ -1,0 +1,57 @@
+%莱斯信道，QPSK，高斯白噪声，脉冲干扰
+
+nsamp=500;
+symbolrate=1200;
+fs=nsamp*symbolrate;
+ts=1/fs;
+T=1/symbolrate;
+t=0:ts:T-ts;
+fc=16160;
+c=sqrt(2/T)*exp(j*2*pi*fc*t);
+c1=sqrt(2/T)*cos(2*pi*fc*t);
+c2=-sqrt(2/T)*sin(2*pi*fc*t);
+
+fd=1000;
+k=10;
+chan=ricianchan(ts,fd,k);
+
+M=4;
+nsymbol=10000;
+graycode=[0 1 3 2];
+msg=randsrc(1,nsymbol,[0:3]);
+msgmod=graycode(msg+1);
+msgmod1=pskmod(msgmod,M);
+tx=real(msgmod1.'*c);
+tx1=reshape(tx.',1,length(msgmod1)*length(c));
+Px=norm(tx1).^2/nsymbol;
+
+SNR_dB=linspace(0,40,40);
+SNR=10.^(SNR_dB/10);
+
+t1=linspace(0,1,10000);
+x=square(2*pi*100*t1,50);
+fc1=15200;
+c11=sqrt(2/T)*exp(j*2*pi*fc1*t);
+ix=real(x.'*c11);
+ix1=reshape(ix.',1,length(x)*length(c));
+
+
+for indx=1:length(SNR_dB)
+    sigma=sqrt(Px/(2*SNR(indx)));
+    fadesig=filter(chan,tx1);
+%     y=fadesig+ix1+sigma*randn(1,length(tx1));
+    y=fadesig;
+    rx=reshape(y,length(c),length(msgmod1));
+    rx1=c1*rx/length(c1);
+    rx2=c2*rx/length(c2);
+    r=rx1+j*rx2;
+    decmsg=pskdemod(r,M);
+    decmsg1=graycode(decmsg+1);
+    [err ber(indx)]=biterr(msg,decmsg1,log2(M));
+end
+semilogy(SNR_dB,ber,'-b*');
+legend('QPSK');
+title('QPSK在莱斯信道下误码率分析');
+xlabel('SNR（dB）');ylabel('误比特率');
+axis([0 20 1e-4 1]);
+grid on
