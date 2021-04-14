@@ -1,20 +1,20 @@
-%À³Ë¹ĞÅµÀ+Âö³å¸ÉÈÅ£¨ÔØ²¨£©
+%è±æ–¯ä¿¡é“+è„‰å†²å¹²æ‰°ï¼ˆè½½æ³¢ï¼‰
 
 clear all
-T=1;%·ûºÅÖÜÆÚ
-nsamp=5000;%Ã¿¸ö·ûºÅ²ÉÑùµãÊı
-ts=1/nsamp;%²ÉÑùÊ±¼ä¼ä¸ô
+T=1;%ç¬¦å·å‘¨æœŸ
+nsamp=5000;%æ¯ä¸ªç¬¦å·é‡‡æ ·ç‚¹æ•°
+ts=1/nsamp;%é‡‡æ ·æ—¶é—´é—´éš”
 t=0:ts:T-ts;
-fc=1500;%ÔØ²¨ÆµÂÊ
-c=sqrt(2/T)*exp(2*1j*pi*fc*t);%Éú³ÉÔØ²¨
+fc=1500;%è½½æ³¢é¢‘ç‡
+c=sqrt(2/T)*exp(2*1j*pi*fc*t);%ç”Ÿæˆè½½æ³¢
 c1=sqrt(2/T)*cos(2*pi*fc*t);
 c2=-sqrt(2/T)*sin(2*pi*fc*t);
 
-symbolrate=10;%·ûºÅËÙÂÊ
-fs=symbolrate*nsamp;%È¡ÑùÆµÂÊ
-fd=100;%×î´ó¶àÆÕÀÕÆµÒÆ
-k=10;%À³Ë¹Òò×Ó
-chan=ricianchan(1/fs,fd,k);%À³Ë¹Ë¥ÂäĞÅµÀ
+symbolrate=10;%ç¬¦å·é€Ÿç‡
+fs=symbolrate*nsamp;%å–æ ·é¢‘ç‡
+fd=100;%æœ€å¤§å¤šæ™®å‹’é¢‘ç§»
+k=10;%è±æ–¯å› å­
+chan=ricianchan(1/fs,fd,k);%è±æ–¯è¡°è½ä¿¡é“
 
 M=4;
 nsymbol=10000;
@@ -30,7 +30,7 @@ CIR=linspace(0,20,10);
 cir=10.^(CIR/10);
 
 % t1=linspace(0,10,50000000);
-% x=square(2*pi*10*t1,50);%¸ÉÈÅÉú³É
+% x=square(2*pi*10*t1,50);%å¹²æ‰°ç”Ÿæˆ
 % s11=ones(1,50000000);
 % indx=find(x==-1);
 % s11(indx)=0;
@@ -45,12 +45,12 @@ for indx=1:1
     y=tx1+sqrt(Pc/nsamp)*s11;
        figure(5);
      xx = linspace(1,length(tx1),length(tx1));
-      plot(xx,tx1,'r',xx,tx1+sqrt(Pc/nsamp)*s11,'k');%ºìÉ«£º·¢ËÍĞÅºÅ£¬ºÚÉ«£º·¢ËÍĞÅºÅ+¸ÉÈÅĞÅºÅ
+      plot(xx,tx1,'r',xx,tx1+sqrt(Pc/nsamp)*s11,'k');%çº¢è‰²ï¼šå‘é€ä¿¡å·ï¼Œé»‘è‰²ï¼šå‘é€ä¿¡å·+å¹²æ‰°ä¿¡å·
       fadesig=filter(chan,y);
       fadesig1=filter(chan,tx1);
 %       fadesig2=filter(chan,x);
     figure(6);
-    plot(xx,fadesig1,'r',xx,fadesig,'k');%ºìÉ«£º·¢ËÍĞÅºÅÍ¨¹ıÀ³Ë¹ĞÅµÀ£¬ºÚÉ«£º·¢ËÍĞÅºÅ¼Ó¸ÉÈÅÍ¨¹ıÀ³Ë¹ĞÅµÀ
+    plot(xx,fadesig1,'r',xx,fadesig,'k');%çº¢è‰²ï¼šå‘é€ä¿¡å·é€šè¿‡è±æ–¯ä¿¡é“ï¼Œé»‘è‰²ï¼šå‘é€ä¿¡å·åŠ å¹²æ‰°é€šè¿‡è±æ–¯ä¿¡é“
 %     figure(7);
 %     plot(xx,fadesig2);
     rx1=reshape(fadesig,length(c),length(msgmod));
@@ -74,6 +74,6 @@ for indx=1:1
 end
 figure(1);
 semilogy(CIR,ber,'-ko',CIR,ser,'-k*');
-title('À³Ë¹ĞÅµÀÏÂQPSKÊÜµ½Âö³å¸ÉÈÅµÄÎóÂëÂÊ·ÖÎö£¨ÔØ²¨£©');
-xlabel('[C/I]');ylabel('Îó±ÈÌØÂÊºÍÎó·ûºÅÂÊ');
-legend('Îó±ÈÌØÂÊ','Îó·ûºÅÂÊ');
+title('è±æ–¯ä¿¡é“ä¸‹QPSKå—åˆ°è„‰å†²å¹²æ‰°çš„è¯¯ç ç‡åˆ†æï¼ˆè½½æ³¢ï¼‰');
+xlabel('[C/I]');ylabel('è¯¯æ¯”ç‰¹ç‡å’Œè¯¯ç¬¦å·ç‡');
+legend('è¯¯æ¯”ç‰¹ç‡','è¯¯ç¬¦å·ç‡');
